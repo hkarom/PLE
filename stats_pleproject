@@ -1,0 +1,3 @@
+Population ==> (count: 47980, mean: 47719,570634, stdev: 302885,559204, max: 31480498,000000, min: 7,000000)
+Latitude ==> (count: 47980, mean: 30,621369, stdev: 22,888219, max: 78,933333, min: -54,800000)
+Longitude ==> (count: 47980, mean: 14,671317, stdev: 70,506820, max: 179,316667, min: -179,500000)

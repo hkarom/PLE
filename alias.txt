@@ -1,0 +1,1 @@
+alias hbase_jar=find /home/hadoop/cluster2017/hbase/lib/ -name \*.jar | tr '\n' ','
