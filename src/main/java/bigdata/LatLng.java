@@ -129,6 +129,58 @@ public class LatLng implements Serializable {
 		
 		System.out.println("==> COUNT "+rdd2.count());
 
+
+		
+		// ------------------------------------------------------------------------------------
+		// ------------------------------------------------------------------------------------
+		// ------------------------------------------------------------------------------------
+		JavaPairRDD<Tuple2<Double, Double>, Integer> pixels = rdd2
+			.filter(city -> {
+				return !city._1().equals("-1") && !city._1().equals("Population");
+			})
+			.mapToPair(city -> {
+				// L'echelle en fonction du zoom
+				double scale = 1 << zoom;
+
+				// La taille des pixels sur google map
+				double TILE = 256;
+
+				double epsilon = 0.9999;
+
+				double sinY = Math.sin(Double.parseDouble(city.2()) * Math.PI / 180);
+				sinY = Math.min(Math.max(sinY, -epsilon), epsilon);
+
+				// Les coordonnees de la ville sur google map
+				double x = TILE * (0.5 + Double.parseDouble(city.3()) / 360);
+				double y = TILE * (0.5 - Math.log(1 + sin_y) / (1 - sin_y)) / (4 * Math.PI));
+
+				// Les coordonnees du pixel contenant la ville sur google map
+				// La position du pixel est determinee a partir de celle de la ville et de l'echelle
+				x = Math.floor(x * scale / TILE);
+				y = Math.floor(y * scale / TILE);
+
+				return new Tuple2<Tuple2<Double, Double>, Integer>(
+					new Tuple2<Double, Double>(x, y),
+					Integer.parseInt(city._1())
+				);
+			});
+
+		JavaPairRDD<Tuple2<Double, Double>, Iterable<Integer>> reducedPixels = pixels.groupByKey();
+		
+		
+		JavaPairRDD<Tuple2<Double, Double>, Integer> results = reducedPixels.mapToPair(pixel -> {
+			int sum = 0, count = 0;
+			for(Integer population : pixel._2()) {
+				sum +=population;
+				count++;
+			}
+			
+			return new Tuple2<Tuple2<Double, Double>, Integer>(pixel._1(), (int) sum / count);
+		});
+		// ------------------------------------------------------------------------------------
+		// ------------------------------------------------------------------------------------
+		// ------------------------------------------------------------------------------------
+
 		JavaPairRDD<String, Integer> result = rdd2
 				.filter(pop -> {
 					return !pop._1().equals("-1") && !pop._1().equals("Population");
